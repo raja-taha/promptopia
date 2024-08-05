@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import Form from "@components/Form";
@@ -15,15 +15,17 @@ const EditPrompt = () => {
 
   useEffect(() => {
     const getPromptsDetails = async () => {
-      const response = await fetch(`/api/prompt/${promptId}`);
-      const data = await response.json();
+      if (promptId) {
+        const response = await fetch(`/api/prompt/${promptId}`);
+        const data = await response.json();
 
-      setPrompt({
-        prompt: data.prompt,
-        tag: data.tag,
-      });
+        setPrompt({
+          prompt: data.prompt,
+          tag: data.tag,
+        });
+      }
     };
-    if (promptId) getPromptsDetails();
+    getPromptsDetails();
   }, [promptId]);
 
   const updatePrompt = async (e) => {
@@ -62,4 +64,12 @@ const EditPrompt = () => {
   );
 };
 
-export default EditPrompt;
+const EditPromptWrapper = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EditPrompt />
+    </Suspense>
+  );
+};
+
+export default EditPromptWrapper;
